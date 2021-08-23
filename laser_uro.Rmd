@@ -14,17 +14,17 @@ output:
     toc_float: true
     theme: lumen
     anchor_sections: TRUE
-  html_notebook:
-    fig_caption: yes
-    theme: spacelab
+    citation_package: biblatex
   pdf_document:
-    includes:
-      in_header: tete.tex
     keep_tex: yes
-    latex_engine: lualatex
+    latex_engine: lualatexé
     toc: yes  
+    citation_package: biblatex
 editor_options:
   chunk_output_type: console
+bibliography: "stat.bib"
+biblio-style: "plain"
+link-citations: true
 ---
 
 ```{r setup, include= FALSE}
@@ -39,24 +39,23 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FA
 
 ```{r info}
 rm(list=ls())
-library("prettydoc")
-library("forcats")
-library("epiDisplay")
-library("factoextra")
+library(prettydoc)
+library(forcats)
+library(epiDisplay)
+library(factoextra)
 library(baseph)
-library("knitr")
-library("finalfit")
-library("Hmisc")
-library("xtable")
-library("viridis")
-library("stringr")
-library("ggplot2")
-library("kableExtra")
-library("lubridate")
-library("git2r")
-library("dplyr")
-library(ggsci)
-library("plotly")
+library(knitr)
+library(finalfit)
+library(Hmisc)
+library(stringr)
+library(ggplot2)
+library(kableExtra)
+library(lubridate)
+library(dplyr)
+library(table1)
+library(janitor)
+library(parameters)
+library(see)
 # sessionInfo()
 ```
 
@@ -64,33 +63,121 @@ library("plotly")
 theme_phm <- function(base_size = 14) {
   theme_light(base_size = base_size) %+replace%
     theme(
-      plot.title = element_text(size = rel(1.2), face = "bold", margin = margin(10,0,5,0), hjust = 0),
-        axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        legend.position = "none",
-       scale_fill_viridis_d()
+      plot.title = element_text(
+        size = rel(1.2),
+        face = "bold",
+        margin = margin(10, 0, 5, 0),
+        hjust = 0
+      ),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12),
+      axis.text.x = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
+      legend.position = "none",
+      scale_color_material()
     )
 }
 ```
 
 
 ```{r import}
-# tt <- debutph("")
-tt <- iris
+tt <- read.csv("data/laser.csv", header =TRUE, as.is = FALSE)
+tt <- clean_names(tt)
+liste <- read.csv("data/liste.csv")
+tt$laser <- as.factor(ifelse(tt$id %in% liste$liste,"laser","autre"))
+tt <- as_tibble(tt)
+tt$evenement <-  fct_lump(tt$evenement,n = 11, other_level="autre")
+tt$libelle_cim10 <-  fct_lump(tt$libelle_cim10,n = 10, other_level="autre")
+tt$libelle_ccam<-  fct_lump(tt$libelle_ccam,n = 10, other_level="autre")
+names(tt) <- str_replace(names(tt), "_", ".")
 ```
 
 # Description des données
 
-La base de données comprend `r dim(tt)[1]` cas pour `r dim(tt)[2]` variables.
+La base de données comprend `r dim(tt)[1]` cas pour `r dim(tt)[2]` variables. Le nombre de cas peu paraître important mais il n'y a que 149 cas de laser. le nombre de variables devient donc important & il est hors de question de faire des tests au hasard sur toutes les variables. 
+
+Les données des variables "Évenement", "CIM10" & "CCAM" ont été nettoyées & regroupées. Seuless les dix intitulés les plus fréquents seront pris en compte.
 
 
+
+```{r pyr}
+epiDisplay::pyramid(age = tt$age,sex = tt$sexe, binwidth = 10, col.gender = c("pink","skyblue1"), main = "Pyramide des âges", printTable = FALSE)
+```
+
+## Avant & pendant l'évenement
+
+### Diagnostic
+
+```{r eve}
+zz <- table(tt$evenement)
+zz <- zz[-12]
+zz <- sort(zz, decreasing = TRUE)
+kable(zz, col.names = c("", "n"), caption = "Libellés CCAM les plus fréquents" , label = "pyr")
+
+# tt %>% 
+#   ggplot() +
+#   aes(x = fct_reorder(evenement, evenement), fill = evenement) +
+#   geom_bar(stat = "count") +
+#      labs(title = "Diagnostics",
+#          y = "%") +
+#     theme_light() +
+#     scale_fill_d3() +
+#     theme(
+#       plot.title = element_text(size = 18, face = "bold"),
+#       plot.subtitle = element_text(size = 12),
+#       axis.title.x = element_blank(),
+#       axis.title.y = element_text(size = 12),
+#       axis.text.x = element_text(size = 12 ,angle = 60, hjust = 1),
+#       axis.text.y = element_text(size = 12),
+#       legend.position = "none")
+```
+
+### CIM 10
+
+```{r cim}
+zz <- table(tt$libelle.cim10)
+zz <- zz[-11]
+zz <- sort(zz, decreasing = TRUE)
+kable(zz, col.names = c("", "n"), caption = "Libellés CIM10 les plus fréquents" , label = "pyr")
+```
+
+### CCAM
+```{r ccam}
+zz <- table(tt$libelle.ccam)
+zz <- zz[-12]
+zz <- sort(zz, decreasing = TRUE)
+kable(zz, col.names = c("", "n"), caption = "Libellés CCAM les plus fréquents" , label = "pyr")
+```
+
+### Autres données
+
+```{r tab1av}
+table1(~cause.immediate_principale + situation.a_risque + sexe + age + poids + grossesse + avant.complexite_clinique + asa + but.acte_medical + produit + periode.vulnerable + degre.urgence_pac + pac.programmee | laser, data = tt, overall ="Total")
+```
+
+# Pendant l'évènement
+
+```{r tab1pd}
+table1(~ infection.nosocomiale + niveau.gravite + identification.causes_immediates + causes.liees_patient + causes.liees_taches + causes.liees_soignant + cause.individu + causes.liees_equipe + causes.liees_environnement_travail + causes.liees_organisation + causes.liees_institutionnel + identifie.barrieres_pas_fonctionnees + identifile.barrieres_efficasses + qualifieriez.vous + existe.recommandation + au.sein_equipe| laser, data = tt, overall ="Total")
+```
+
+
+
+## Après l'évènemement
+
+```{r tab1ap}
+table1(~ rmm + sein.etablissement +al.ars + autres.institutions + patient.informe  | laser, data = tt, overall ="Total")   
+```       
+        
+       
 # Technique 
 
 **Petit paragraphe à ajouter en fin de “matériel & méthode”**
+
+*Pas fini !!!*
 
 Les données discrètes ont été décrites par leur fréquence exprimée en pourcentage avec son intervalle de confiance à 95 % et ont été comparées par le test exact de Fisher vu la faible effectif. Les intervalles de confiance n’ont été réalisés qu’après transformation angulaire. Les données numériques ont été décrites par leur moyenne (avec son intervalle de confiance à 95 % calculé par bootstrap) et l’écart-type. Les données continues ont été comparées par le test de Student après vérification de l’égalité des variances. L’analyse factorielle a été réalisée en analyse des correspondances multiples après imputation des données manquantes, possible ici en raison du faible nombre de celles-ci.
 Les statistiques ont été réalisées grâce au logiciel R[@rstat] avec en particulier les packages du Tidyverse[@tidy] & factoMineR[@facto].
 
 # References
+
