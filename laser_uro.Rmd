@@ -1,6 +1,6 @@
 ---
 title: "Laser en urologie"
-subtitle: ""
+subtitle: "Évenements indésirables"
 author: "Philippe MICHEL"
 date: "`r format(Sys.Date(),'%d %B %Y')`"
 output:
@@ -10,14 +10,14 @@ output:
     toc: yes
   html_document:
     df_print: paged
-    toc: yes
+    toc: true
     toc_float: true
     theme: lumen
-    anchor_sections: TRUE
+    anchor_sections: true
     citation_package: biblatex
   pdf_document:
     keep_tex: yes
-    latex_engine: lualatexé
+    latex_engine: lualatex
     toc: yes  
     citation_package: biblatex
 editor_options:
@@ -41,13 +41,16 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FA
 rm(list=ls())
 library(prettydoc)
 library(forcats)
+library(stringr)
+library(missMDA)
+library(FactoMineR)
 library(epiDisplay)
 library(factoextra)
 library(baseph)
 library(knitr)
 library(finalfit)
 library(Hmisc)
-library(stringr)
+library(tidyr)
 library(ggplot2)
 library(kableExtra)
 library(lubridate)
@@ -81,15 +84,29 @@ theme_phm <- function(base_size = 14) {
 
 
 ```{r import}
-tt <- read.csv("data/laser.csv", header =TRUE, as.is = FALSE)
+tt <- read.csv("data/laser.csv", header = TRUE, as.is = FALSE)
 tt <- clean_names(tt)
 liste <- read.csv("data/liste.csv")
-tt$laser <- as.factor(ifelse(tt$id %in% liste$liste,"laser","autre"))
+tt$laser <-
+  as.factor(ifelse(tt$id %in% liste$liste, "laser", "autre"))
 tt <- as_tibble(tt)
-tt$evenement <-  fct_lump(tt$evenement,n = 11, other_level="autre")
-tt$libelle_cim10 <-  fct_lump(tt$libelle_cim10,n = 10, other_level="autre")
-tt$libelle_ccam<-  fct_lump(tt$libelle_ccam,n = 10, other_level="autre")
+tt$evenement <-
+  fct_lump(tt$evenement, n = 11, other_level = "autre")
+tt$libelle_cim10 <-
+  fct_lump(tt$libelle_cim10, n = 10, other_level = "autre")
+tt$libelle_ccam <-
+  fct_lump(tt$libelle_ccam, n = 10, other_level = "autre")
 names(tt) <- str_replace(names(tt), "_", ".")
+tt$bmi <- 10000 * tt$poids/tt$taille^2
+tt$bmi <- cut(tt$bmi,
+  include.lowest = FALSE,
+  right = FALSE,
+  dig.lab = 4,
+  breaks = c(0, 18.5, 25, 30,100),
+  labels = c("Underweight","Normal weight","Overweight","Obese")
+)
+tt$asa <- as.factor(tt$asa)
+ttlaser <- dd <- filter(tt, libelle.cim10 %in% c("Calcul urinaire","Colique néphrétique","Hyperplasie de la prostate","Incontinence urinaire","autre" ))
 ```
 
 # Description des données
@@ -112,24 +129,34 @@ epiDisplay::pyramid(age = tt$age,sex = tt$sexe, binwidth = 10, col.gender = c("p
 zz <- table(tt$evenement)
 zz <- zz[-12]
 zz <- sort(zz, decreasing = TRUE)
-kable(zz, col.names = c("", "n"), caption = "Libellés CCAM les plus fréquents" , label = "pyr")
+kable(zz,
+      col.names = c("", "n"),
+      caption = "Libellés CCAM les plus fréquents" ,
+      label = "pyr")
 
-# tt %>% 
-#   ggplot() +
-#   aes(x = fct_reorder(evenement, evenement), fill = evenement) +
-#   geom_bar(stat = "count") +
-#      labs(title = "Diagnostics",
-#          y = "%") +
-#     theme_light() +
-#     scale_fill_d3() +
-#     theme(
-#       plot.title = element_text(size = 18, face = "bold"),
-#       plot.subtitle = element_text(size = 12),
-#       axis.title.x = element_blank(),
-#       axis.title.y = element_text(size = 12),
-#       axis.text.x = element_text(size = 12 ,angle = 60, hjust = 1),
-#       axis.text.y = element_text(size = 12),
-#       legend.position = "none")
+tt %>%
+  drop_na(evenement) %>%
+  ggplot() +
+  aes(x = fct_infreq(evenement), fill = laser) +
+  geom_bar(stat = "count") +
+  labs(title = "Problème rencontré",
+       y = "n") +
+  theme_light() +
+  # scale_fill_d3() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    axis.title.x = element_blank(),
+    legend.title = element_blank(),
+    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(
+      size = 12 ,
+      angle = 60,
+      hjust = 1
+    ),
+    axis.text.y = element_text(size = 12),
+    legend.position = "bottom"
+  )
 ```
 
 ### CIM 10
@@ -139,6 +166,33 @@ zz <- table(tt$libelle.cim10)
 zz <- zz[-11]
 zz <- sort(zz, decreasing = TRUE)
 kable(zz, col.names = c("", "n"), caption = "Libellés CIM10 les plus fréquents" , label = "pyr")
+#
+tt %>%
+  drop_na(libelle.cim10) %>%
+  ggplot() +
+  aes(x = fct_infreq(libelle.cim10), fill = laser) +
+  geom_bar(stat = "count") +
+  labs(title = "Diagnostic (CIM 10)",
+       y = "n") +
+  theme_light() +
+  # scale_fill_d3() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    axis.title.x = element_blank(),
+    legend.title = element_blank(),
+    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(
+      size = 12 ,
+      angle = 60,
+      hjust = 1
+    ),
+    axis.text.y = element_text(size = 12),
+    legend.position = "bottom"
+  )
+#
+dd <- slice(tt, c(2:13,16))
+
 ```
 
 ### CCAM
@@ -147,15 +201,46 @@ zz <- table(tt$libelle.ccam)
 zz <- zz[-12]
 zz <- sort(zz, decreasing = TRUE)
 kable(zz, col.names = c("", "n"), caption = "Libellés CCAM les plus fréquents" , label = "pyr")
+#
 ```
 
 ### Autres données
 
 ```{r tab1av}
-table1(~cause.immediate_principale + situation.a_risque + sexe + age + poids + grossesse + avant.complexite_clinique + asa + but.acte_medical + produit + periode.vulnerable + degre.urgence_pac + pac.programmee | laser, data = tt, overall ="Total")
+table1(~cause.immediate_principale + situation.a_risque + sexe + age + bmi + grossesse + avant.complexite_clinique + asa + but.acte_medical + produit + periode.vulnerable + degre.urgence_pac + pac.programmee | laser, data = tt, overall = "Total")
 ```
 
-# Pendant l'évènement
+### Analyse factorielle
+
+Une classification non supervisée des cas a été réalisée. On ne prend en compte que les catégories CIM 10 où le Laser est utilisé.
+
+les résultats sont à prendre avec précaution, les axes présentés ne montrent que 6 % de la variance totale. Vu la faible efficacité nous n'irons pas plus loin sur cet axe.
+
+```{r estim1, cache = TRUE, eval = TRUE}
+dd <- select(ttlaser, c(3,4,6,9,10,11,13,16,17,19,20,21,23,25,26,46,47))
+dd$age <- cut(dd$age,seq(0,100,20))
+#nn <- estim_ncpFAMD(dd)
+nn <- 0
+ddi <- imputeMCA(dd) 
+ddi <- ddi$completeObs
+```
+
+```{r fact1, eval = TRUE}
+mtt <- MCA(ddi, graph = FALSE)
+```
+
+```{r factg1, eval = TRUE}
+fviz_mca_ind(mtt, geom = "point", 
+             habillage = ddi$laser,
+             addEllipses = TRUE,
+             palette = "lancet",
+             title = "Analyse factorielle - Intervention avec Laser"
+)
+```
+
+Les interventions avec laser représentent un groupe homogène de cas.
+
+## Pendant l'évènement
 
 ```{r tab1pd}
 table1(~ infection.nosocomiale + niveau.gravite + identification.causes_immediates + causes.liees_patient + causes.liees_taches + causes.liees_soignant + cause.individu + causes.liees_equipe + causes.liees_environnement_travail + causes.liees_organisation + causes.liees_institutionnel + identifie.barrieres_pas_fonctionnees + identifile.barrieres_efficasses + qualifieriez.vous + existe.recommandation + au.sein_equipe| laser, data = tt, overall ="Total")
