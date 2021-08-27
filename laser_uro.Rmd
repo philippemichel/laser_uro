@@ -38,10 +38,10 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FA
 ```
 
 ```{r info}
-rm(list=ls())
 library(prettydoc)
 library(forcats)
 library(stringr)
+library(treemap)
 library(missMDA)
 library(FactoMineR)
 library(epiDisplay)
@@ -53,6 +53,7 @@ library(Hmisc)
 library(tidyr)
 library(ggplot2)
 library(kableExtra)
+library(forestmodel)
 library(lubridate)
 library(dplyr)
 library(table1)
@@ -76,27 +77,20 @@ theme_phm <- function(base_size = 14) {
       axis.title.y = element_text(size = 12),
       axis.text.x = element_text(size = 12),
       axis.text.y = element_text(size = 12),
-      legend.position = "none",
-      scale_color_material()
+      legend.position = "none"
     )
 }
 ```
 
 
 ```{r import}
+rm(list=ls())
 tt <- read.csv("data/laser.csv", header = TRUE, as.is = FALSE)
 tt <- clean_names(tt)
 liste <- read.csv("data/liste.csv")
 tt$laser <-
   as.factor(ifelse(tt$id %in% liste$liste, "laser", "autre"))
 tt <- as_tibble(tt)
-tt$evenement <-
-  fct_lump(tt$evenement, n = 11, other_level = "autre")
-tt$libelle_cim10 <-
-  fct_lump(tt$libelle_cim10, n = 10, other_level = "autre")
-tt$libelle_ccam <-
-  fct_lump(tt$libelle_ccam, n = 10, other_level = "autre")
-names(tt) <- str_replace(names(tt), "_", ".")
 tt$bmi <- 10000 * tt$poids/tt$taille^2
 tt$bmi <- cut(tt$bmi,
   include.lowest = FALSE,
@@ -106,7 +100,20 @@ tt$bmi <- cut(tt$bmi,
   labels = c("Underweight","Normal weight","Overweight","Obese")
 )
 tt$asa <- as.factor(tt$asa)
-ttlaser <- dd <- filter(tt, libelle.cim10 %in% c("Calcul urinaire","Colique néphrétique","Hyperplasie de la prostate","Incontinence urinaire","autre" ))
+names(tt) <- str_replace_all(names(tt), "_", ".")
+ttlaser <- dplyr::filter(tt, libelle.cim10 %in% c("Affection de la prostate","Autres calculs des voies urinaires inférieures", "Calcul urinaire","Colique néphrétique", "Congestion et hémorragie prostatiques", "Dysplasie de la prostate","Dysurie", "Hyperplasie de la prostate","Incontinence urinaire"," Tumeur bénigne de la prostate"))
+tt$evenement <-
+  fct_lump(tt$evenement, n = 10, other_level = "autre")
+tt$libelle.cim10 <-
+  fct_lump(tt$libelle.cim10, n = 10, other_level = "autre")
+tt$libelle.ccam <-
+  fct_lump(tt$libelle.ccam, n = 10, other_level = "autre")
+ttlaser$evenement <-
+  fct_lump(ttlaser$evenement, n = 10, other_level = "autre")
+ttlaser$libelle.cim10 <-
+  fct_lump(ttlaser$libelle.cim10, n = 10, other_level = "autre")
+ttlaser$libelle.ccam <-
+  fct_lump(ttlaser$libelle.ccam, n = 10, other_level = "autre")
 ```
 
 # Description des données
@@ -135,14 +142,15 @@ kable(zz,
       label = "pyr")
 
 tt %>%
-  drop_na(evenement) %>%
+  drop_na(cause.immediate.principale) %>%
   ggplot() +
-  aes(x = fct_infreq(evenement), fill = laser) +
+  aes(x = fct_infreq(cause.immediate.principale), fill = laser) +
   geom_bar(stat = "count") +
   labs(title = "Problème rencontré",
+       subtitle = "Toutes interventions",
        y = "n") +
   theme_light() +
-  # scale_fill_d3() +
+  scale_fill_material() +
   theme(
     plot.title = element_text(size = 18, face = "bold"),
     plot.subtitle = element_text(size = 12),
@@ -155,8 +163,34 @@ tt %>%
       hjust = 1
     ),
     axis.text.y = element_text(size = 12),
-    legend.position = "bottom"
-  )
+    legend.position = "top"
+  ) 
+
+ttlaser %>%
+  drop_na(cause.immediate.principale) %>%
+  ggplot() +
+  aes(x = fct_infreq(cause.immediate.principale), fill = laser) +
+  geom_bar(stat = "count") +
+  labs(title = "Problème rencontré",
+       subtitle = "intervention avec possible laser",
+       y = "n") +
+  theme_light() +
+  scale_fill_material() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    axis.title.x = element_blank(),
+    legend.title = element_blank(),
+    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(
+      size = 12 ,
+      angle = 60,
+      hjust = 1
+    ),
+    axis.text.y = element_text(size = 12),
+    legend.position = "top"
+  ) 
+  
 ```
 
 ### CIM 10
@@ -175,7 +209,7 @@ tt %>%
   labs(title = "Diagnostic (CIM 10)",
        y = "n") +
   theme_light() +
-  # scale_fill_d3() +
+  scale_fill_material() +
   theme(
     plot.title = element_text(size = 18, face = "bold"),
     plot.subtitle = element_text(size = 12),
@@ -207,7 +241,7 @@ kable(zz, col.names = c("", "n"), caption = "Libellés CCAM les plus fréquents"
 ### Autres données
 
 ```{r tab1av}
-table1(~cause.immediate_principale + situation.a_risque + sexe + age + bmi + grossesse + avant.complexite_clinique + asa + but.acte_medical + produit + periode.vulnerable + degre.urgence_pac + pac.programmee | laser, data = tt, overall = "Total")
+table1(~cause.immediate.principale + situation.a.risque + sexe + age + bmi + grossesse + avant.complexite.clinique + asa + but.acte.medical + produit + periode.vulnerable + degre.urgence.pac + pac.programmee | laser, data = tt, overall = "Total")
 ```
 
 ### Analyse factorielle
@@ -243,7 +277,7 @@ Les interventions avec laser représentent un groupe homogène de cas.
 ## Pendant l'évènement
 
 ```{r tab1pd}
-table1(~ infection.nosocomiale + niveau.gravite + identification.causes_immediates + causes.liees_patient + causes.liees_taches + causes.liees_soignant + cause.individu + causes.liees_equipe + causes.liees_environnement_travail + causes.liees_organisation + causes.liees_institutionnel + identifie.barrieres_pas_fonctionnees + identifile.barrieres_efficasses + qualifieriez.vous + existe.recommandation + au.sein_equipe| laser, data = tt, overall ="Total")
+table1(~ infection.nosocomiale + niveau.gravite + identification.causes.immediates + causes.liees.patient + causes.liees.taches + causes.liees.soignant + cause.individu + causes.liees.equipe + causes.liees.environnement.travail + causes.liees.organisation + causes.liees.institutionnel + identifie.barrieres.pas.fonctionnees + identifile.barrieres.efficasses + qualifieriez.vous + existe.recommandation + au.sein.equipe| laser, data = tt, overall ="Total")
 ```
 
 
@@ -255,6 +289,51 @@ table1(~ rmm + sein.etablissement +al.ars + autres.institutions + patient.inform
 ```       
         
        
+# Matériel & Laser
+```{r mat0}
+clas <- chisq.test(ttlaser$cause.immediate.principale,ttlaser$laser)
+pp <- beaup(clas$p.value)
+
+zz <- table(tt$cause.immediate.principale <- fct_rev(fct_relevel(tt$cause.immediate.principale, "MATERIEL ET STERILISATION" )),tt$laser)
+zz <- proportions(zz,2)*100
+aa <- as.data.frame(zz)
+names(aa) <- c("cause","laser","fq")
+aa %>% 
+ggplot() +
+  aes(x= laser, y = fq, fill = cause) +
+  geom_bar(stat= "identity") +
+  labs(title = "Cause retenue & emploi du Laser",
+       y = "%") +
+  theme_light() +
+  scale_fill_material() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold"),
+    plot.subtitle = element_text(size = 12),
+    axis.title.x = element_blank(),
+    legend.title = element_blank(),
+    axis.title.y = element_text(size = 12),
+    axis.text.x = element_text(
+      size = 12 ,
+      angle = 60,
+      hjust = 1
+    ),
+    axis.text.y = element_text(size = 12),
+    legend.position = "right"
+  )
+```
+Les problèmes rencontrées pendant les interventions avec Laser semblent différentes des autres interventions (p = `r pp`).
+
+Les problèmes liés au matériel semblent fréquents lors des interventions avec Laser. On se concentre sur les types d’interventions où le Laser est parfois utilisé.
+
+```{r mat1}
+ttlaser$materiel <- as.factor(ifelse(ttlaser$cause.immediate.principale == "MATERIEL ET STERILISATION","matériel", "autre cause" ))
+cc(ttlaser$materiel,ttlaser$laser)
+aa <- forest_model_format_options(text_size = 4, colour = "black")
+ll <- glm(materiel~laser + age + bmi + asa + avant.complexite.clinique + pac.programmee, data = ttlaser, family = "binomial") 
+forest_model(ll, factor_separate_line = TRUE, recalculate_width = TRUE,  format_options = aa)
+```
+L'utilisation du Laser est donc un facteur de risque d'avoir un problème avec le matériel. En standardisant des facteurs de risques simples (âge, complexité clinique, ASA, BMI, situation d'urgence) l'usage du Laser reste un facteur de risque majeur d'avoir un problème avec le matériel. À noter qu'il y a moins d’évènements liés au matériel en urgence que sur des interventions programmées ? 
+
 # Technique 
 
 **Petit paragraphe à ajouter en fin de “matériel & méthode”**
