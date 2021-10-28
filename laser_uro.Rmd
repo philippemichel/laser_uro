@@ -2,11 +2,10 @@
 title: "Laser en urologie"
 subtitle: "Évenements indésirables"
 author: "Philippe MICHEL"
-date: "`r format(Sys.Date(),'%d %B %Y')`"
+date: "`r format(Sys.Date(),'%d %B %Y')` - V2"
 output:
   prettydoc::html_pretty:
     theme: architect
-    highlight: github
     toc: yes
   html_document:
     df_print: paged
@@ -29,8 +28,8 @@ link-citations: true
 
 ```{r setup, include= FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FALSE,
-# knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-#
+#  knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+# #
  fig.width = 7,
  fig.asp = 0.8,
  out.width = "100%"
@@ -60,6 +59,7 @@ library(table1)
 library(janitor)
 library(parameters)
 library(see)
+library(binom)
 # sessionInfo()
 ```
 
@@ -116,16 +116,66 @@ ttlaser$libelle.ccam <-
   fct_lump(ttlaser$libelle.ccam, n = 10, other_level = "autre")
 ```
 
+```{r bar1}
+bar1 <- function(varx, titre) {
+  zz <- fct_relevel(varx, c("oui", "non", "ne sais pas"))
+  tzz <- table(zz)
+  aa <- binom.confint(tzz, sum(tzz), , method = "exact")
+  aa <- as.data.frame(aa)
+  aa$nom <- levels(zz)
+  ymax <- max(aa$upper) * 100 + 10
+  if (ymax > 90) {
+    ymax = 100
+  }
+  aa %>%
+    ggplot() +
+    aes(x =  fct_relevel(aa$nom, c("oui", "non", "ne sais pas")),
+        y = mean * 100,
+        fill = nom) +
+    geom_bar(stat = "identity") +
+    geom_errorbar(
+      ymin = aa$lower * 100,
+      ymax = aa$upper * 100,
+      width = 0.6
+    ) +
+    labs(title = titre,
+         y = "%") +
+    theme_light() +
+    scale_fill_material() +
+    theme(
+      plot.title = element_text(size = 18, face = "bold"),
+      plot.subtitle = element_text(size = 12),
+      axis.title.x = element_blank(),
+      legend.title = element_blank(),
+      axis.title.y = element_text(size = 12),
+      axis.text.x = element_text(
+        size = 12 ,
+        angle = 60,
+        hjust = 1
+      ),
+      axis.text.y = element_text(size = 12),
+      legend.position = "none"
+    ) +
+    scale_y_continuous(limits = c(0, ymax))
+}
+```
 # Description des données
 
 La base de données comprend `r dim(tt)[1]` cas pour `r dim(tt)[2]` variables. Le nombre de cas peu paraître important mais il n'y a que 149 cas de laser. le nombre de variables devient donc important & il est hors de question de faire des tests au hasard sur toutes les variables. 
 
-Les données des variables "Évenement", "CIM10" & "CCAM" ont été nettoyées & regroupées. Seuless les dix intitulés les plus fréquents seront pris en compte.
+Les données des variables "Evénement", "CIM10" & "CCAM" ont été nettoyées & regroupées. Seuls les dix intitulés les plus fréquents seront pris en compte.
 
 
 
 ```{r pyr}
-epiDisplay::pyramid(age = tt$age,sex = tt$sexe, binwidth = 10, col.gender = c("pink","skyblue1"), main = "Pyramide des âges", printTable = FALSE)
+epiDisplay::pyramid(
+  age = tt$age,
+  sex = tt$sexe,
+  binwidth = 10,
+  col.gender = c("pink", "skyblue1"),
+  main = "Pyramide des âges",
+  printTable = FALSE
+)
 ```
 
 ## Avant & pendant l'évenement
@@ -199,7 +249,10 @@ ttlaser %>%
 zz <- table(tt$libelle.cim10)
 zz <- zz[-11]
 zz <- sort(zz, decreasing = TRUE)
-kable(zz, col.names = c("", "n"), caption = "Libellés CIM10 les plus fréquents" , label = "pyr")
+kable(zz,
+      col.names = c("", "n"),
+      caption = "Libellés CIM10 les plus fréquents" ,
+      label = "pyr")
 #
 tt %>%
   drop_na(libelle.cim10) %>%
@@ -224,68 +277,65 @@ tt %>%
     axis.text.y = element_text(size = 12),
     legend.position = "bottom"
   )
-#
-dd <- slice(tt, c(2:13,16))
-
 ```
 
 ### CCAM
+
 ```{r ccam}
 zz <- table(tt$libelle.ccam)
 zz <- zz[-12]
 zz <- sort(zz, decreasing = TRUE)
-kable(zz, col.names = c("", "n"), caption = "Libellés CCAM les plus fréquents" , label = "pyr")
+kable(zz,
+      col.names = c("", "n"),
+      caption = "Libellés CCAM les plus fréquents" ,
+      label = "pyr")
 #
 ```
 
 ### Autres données
 
 ```{r tab1av}
-table1(~cause.immediate.principale + situation.a.risque + sexe + age + bmi + grossesse + avant.complexite.clinique + asa + but.acte.medical + produit + periode.vulnerable + degre.urgence.pac + pac.programmee | laser, data = tt, overall = "Total")
-```
-
-### Analyse factorielle
-
-Une classification non supervisée des cas a été réalisée. On ne prend en compte que les catégories CIM 10 où le Laser est utilisé.
-
-les résultats sont à prendre avec précaution, les axes présentés ne montrent que 6 % de la variance totale. Vu la faible efficacité nous n'irons pas plus loin sur cet axe.
-
-```{r estim1, cache = TRUE, eval = TRUE}
-dd <- select(ttlaser, c(3,4,6,9,10,11,13,16,17,19,20,21,23,25,26,46,47))
-dd$age <- cut(dd$age,seq(0,100,20))
-#nn <- estim_ncpFAMD(dd)
-nn <- 0
-ddi <- imputeMCA(dd) 
-ddi <- ddi$completeObs
-```
-
-```{r fact1, eval = TRUE}
-mtt <- MCA(ddi, graph = FALSE)
-```
-
-```{r factg1, eval = TRUE}
-fviz_mca_ind(mtt, geom = "point", 
-             habillage = ddi$laser,
-             addEllipses = TRUE,
-             palette = "lancet",
-             title = "Analyse factorielle - Intervention avec Laser"
+table1(
+  ~ cause.immediate.principale + situation.a.risque + sexe + age + bmi + grossesse + avant.complexite.clinique + asa + but.acte.medical + produit + periode.vulnerable + degre.urgence.pac + pac.programmee |
+    laser,
+  data = tt,
+  overall = "Total"
 )
 ```
 
-Les interventions avec laser représentent un groupe homogène de cas.
 
 ## Pendant l'évènement
 
 ```{r tab1pd}
-table1(~ infection.nosocomiale + niveau.gravite + identification.causes.immediates + causes.liees.patient + causes.liees.taches + causes.liees.soignant + cause.individu + causes.liees.equipe + causes.liees.environnement.travail + causes.liees.organisation + causes.liees.institutionnel + identifie.barrieres.pas.fonctionnees + identifile.barrieres.efficasses + qualifieriez.vous + existe.recommandation + au.sein.equipe| laser, data = tt, overall ="Total")
+table1(
+  ~ infection.nosocomiale + niveau.gravite + identification.causes.immediates + causes.liees.patient + causes.liees.taches + causes.liees.soignant + cause.individu + causes.liees.equipe + causes.liees.environnement.travail + causes.liees.organisation + causes.liees.institutionnel + identifie.barrieres.pas.fonctionnees + identifile.barrieres.efficasses + qualifieriez.vous + existe.recommandation + au.sein.equipe |
+    laser,
+  data = tt,
+  overall = "Total"
+)
 ```
 
+```{r graphcause}
+bar1(tt$cause.immediate.principale, "Cause immédiate principale")
+bar1(tt$causes.liees.patient, "Cause liée au patient")
+bar1(tt$causes.liees.taches, "Cause liée aux tâches")
+bar1(tt$causes.liees.soignant, "Cause liée aux soignants")
+bar1(tt$causes.liees.equipe, "Cause liée à l'équipe")
+bar1(tt$causes.liees.environnement.travail, "Cause liée à l'environnement de travail")
+bar1(tt$causes.liees.organisation, "Cause liée à l'organisation")
+bar1(tt$causes.liees.institutionnel, "Cause institutionnelle")
+```
 
 
 ## Après l'évènemement
 
 ```{r tab1ap}
-table1(~ rmm + sein.etablissement +al.ars + autres.institutions + patient.informe  | laser, data = tt, overall ="Total")   
+table1(
+  ~ rmm + sein.etablissement + al.ars + autres.institutions + patient.informe  |
+    laser,
+  data = tt,
+  overall = "Total"
+)   
 ```       
         
        
@@ -325,14 +375,26 @@ Les problèmes rencontrées pendant les interventions avec Laser semblent diffé
 
 Les problèmes liés au matériel semblent fréquents lors des interventions avec Laser. On se concentre sur les types d’interventions où le Laser est parfois utilisé.
 
+
 ```{r mat1}
 ttlaser$materiel <- as.factor(ifelse(ttlaser$cause.immediate.principale == "MATERIEL ET STERILISATION","matériel", "autre cause" ))
 cc(ttlaser$materiel,ttlaser$laser)
+```
+Incident lié au matérielselon l'usage du Laser ou non. 
+
+## Analyse multivariée
+
+```{r mat2}
 aa <- forest_model_format_options(text_size = 4, colour = "black")
 ll <- glm(materiel~laser + age + bmi + asa + avant.complexite.clinique + pac.programmee, data = ttlaser, family = "binomial") 
-forest_model(ll, factor_separate_line = TRUE, recalculate_width = TRUE,  format_options = aa)
+gg <- forest_model(ll, factor_separate_line = TRUE, recalculate_width = TRUE,  format_options = aa)
+gg +
+labs(title = "Incidents liés au matériel ou non",
+     caption = "Incidents lié au matériel ou non, analyse multivariée par régression logistique")
 ```
-L'utilisation du Laser est donc un facteur de risque d'avoir un problème avec le matériel. En standardisant des facteurs de risques simples (âge, complexité clinique, ASA, BMI, situation d'urgence) l'usage du Laser reste un facteur de risque majeur d'avoir un problème avec le matériel. À noter qu'il y a moins d’évènements liés au matériel en urgence que sur des interventions programmées ? 
+
+Les facteurs liés à un problème avec le matériel sont l'usage du Laser & une intervention programmée . Les patients à risque (ASA 3) semblent avoir plus de problèmes autres que le matériel (significitabilité limite).
+
 
 # Technique 
 
