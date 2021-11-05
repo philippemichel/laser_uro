@@ -1,9 +1,15 @@
 ---
 title: "Laser en urologie"
+subtitle: "Évenements indésirables"
 author: "Philippe MICHEL"
+date: "05 novembre 2021 - V3"
+always_allow_html: true
 output:
-  word_document:
+  pdf_document:
+    keep_tex: yes
+    latex_engine: lualatex
     toc: yes
+    citation_package: biblatex
   html_document:
     df_print: kable
     toc: yes
@@ -19,12 +25,8 @@ output:
   prettydoc::html_pretty:
     theme: tactile
     toc: yes
-  pdf_document:
-    keep_tex: yes
-    latex_engine: lualatex
+  word_document:
     toc: yes
-    citation_package: biblatex
-subtitle: Évenements indésirables
 editor_options:
   chunk_output_type: console
 bibliography: stat.bib
@@ -75,6 +77,17 @@ rm(list=ls())
 ```{r import}
 tt <- read.csv("data/laser.csv", header = TRUE, as.is = FALSE)
 tt <- clean_names(tt)
+tt <- dplyr::filter(tt, libelle_cim10 %in% c(
+  "Affection de la prostate",
+  "Autres calculs des voies urinaires inférieures", 
+  "Calcul urinaire",
+  "Colique néphrétique", 
+  "Congestion et hémorragie prostatiques", 
+  "Dysplasie de la prostate",
+  "Dysurie", 
+  "Hyperplasie de la prostate",
+  "Incontinence urinaire",
+  "Tumeur bénigne de la prostate"))
 liste <- read.csv("data/liste.csv")
 tt$laser <-
   as.factor(ifelse(tt$id %in% liste$liste, "laser", "autre"))
@@ -83,24 +96,17 @@ tt$bmi <- 10000 * tt$poids/tt$taille^2
 tt$bmi <- bmiph(tt$bmi, lang = "eng")
 tt$asa <- as.factor(tt$asa)
 names(tt) <- str_replace_all(names(tt), "_", ".")
-ttlaser <- dplyr::filter(tt, libelle.cim10 %in% c("Affection de la prostate","Autres calculs des voies urinaires inférieures", "Calcul urinaire","Colique néphrétique", "Congestion et hémorragie prostatiques", "Dysplasie de la prostate","Dysurie", "Hyperplasie de la prostate","Incontinence urinaire"," Tumeur bénigne de la prostate"))
 tt$avant.complexite.clinique <- fct_relevel(tt$avant.complexite.clinique,c("Non complexe"  ,  "Plutôt non complexe" ,    "Plutôt complexe" ,   "Très complexe" ))
 tt$qualifieriez.vous <- fct_relevel(tt$qualifieriez.vous, c("évitable" ,"probablement évitable", "probablement inévitable","inévitable", "ne sais pas"))
 tt$evenement <-
   fct_lump(tt$evenement, n = 10, other_level = "autre")
-tt$libelle.cim10 <-
-  fct_lump(tt$libelle.cim10, n = 10, other_level = "autre")
 tt$libelle.ccam <-
   fct_lump(tt$libelle.ccam, n = 10, other_level = "autre")
-ttlaser$evenement <-
-  fct_lump(ttlaser$evenement, n = 10, other_level = "autre")
-ttlaser$libelle.cim10 <-
-  fct_lump(ttlaser$libelle.cim10, n = 10, other_level = "autre")
-ttlaser$libelle.ccam <-
-  fct_lump(ttlaser$libelle.ccam, n = 10, other_level = "autre")
 tt$materiel <- as.factor(ifelse(tt$cause.immediate.principale == "MATERIEL ET STERILISATION","Matériel et stérilisation", "Autre cause")) 
 demog <- c(5:8, 47,9, 12,11,46)
 ndemo <- c("Sexe","Âge","Taille", "Poids","IMC", "Grosssesse", "Score ASA", "Complexité clinique" , "Laser")
+#
+exp = FALSE
 ```
 
 ```{r bar1}
@@ -147,17 +153,33 @@ bar1 <- function(varx, titre) {
 }
 ```
 
-La base de données comprend `r dim(tt)[1]` cas pour `r dim(tt)[2]` variables. Le nombre de cas peu paraître important mais il n'y a que 149 cas de laser. le nombre de variables devient donc important & il est hors de question de faire des tests au hasard sur toutes les variables. 
+ 
 
-Les données des variables "Evénement", "CIM10" & "CCAM" ont été nettoyées & regroupées. Seuls les dix intitulés les plus fréquents seront pris en compte.
+Pour avoir un groupe plus homogène & des comparaisons qui ont un sens on ne garde que les interventions où le laser peut être utilisé à savoir : 
+
+- Calcul urinaire
+- Hyperplasie de la prostate
+- Tumeur bénigne de la prostate
+- Dysplasie de la prostate
+- Affection de la prostate
+- Colique néphrétique
+- Incontinence urinaire
+- Dysurie
+- Congestion et hémorragie prostatiques
+- Autres calculs des voies urinaires inférieures
+
+La base de données comprend alors `r dim(tt)[1]` cas pour `r dim(tt)[2]`  dont 149 cas de laser. le nombre de variables devient donc important & il est hors de question de faire des tests au hasard sur toutes les variables. 
+
+Les données des variables "Evénement" & "CCAM" ont été nettoyées & regroupées. Seuls les dix intitulés les plus fréquents seront pris en compte.
+
 
 ## Données démographiques
 
 ```{r tabdemo}
-tabcph(tt[,demog],tri = laser, nomv = ndemo, titre = "Données démographiques")
+tabcph(tt[,demog],tri = laser, nomv = ndemo, titre = "Données démographiques", export = exp)
 ```
 
-Les patients "Laser" ne semblent pas différents des autres (la différence sur la taille me semble anecdotique & la preuve qu'en multipliant les tests on obtient des aberrations. Conseil : ne garde que le BMI dans ton tableau, plus informatif.)
+Les patients "Laser" ont une *complexité clinique* plus importante. PAs d'autre différence notable.
 
 ```{r pyr, fig.cap="Pyramide des âges"}
 epiDisplay::pyramid(
@@ -172,83 +194,12 @@ epiDisplay::pyramid(
 
 ## Avant & pendant l'évenement
 
-### Diagnostic
+## Diagnostic
 
-```{r eve1}
-zz <- table(tt$evenement)
-zz <- zz[-12]
-zz <- sort(zz, decreasing = TRUE)
-kable(zz,
-      col.names = c("", "n"),
-      caption = "Libellés CCAM les plus fréquents" ,
-      label = "ccamfq")
-```
-
-```{r eve2, fig.cap="Problèmes rencontrés"}
-tt %>%
-  drop_na(cause.immediate.principale) %>%
-  ggplot() +
-  aes(x = fct_infreq(cause.immediate.principale), fill = laser) +
-  geom_bar(stat = "count") +
-  labs(title = "Problème rencontré",
-       subtitle = "Toutes interventions",
-       y = "n") +
-  theme_light() +
-  scale_fill_material() +
-  theme(
-    plot.title = element_text(size = 18, face = "bold"),
-    plot.subtitle = element_text(size = 12),
-    axis.title.x = element_blank(),
-    legend.title = element_blank(),
-    axis.title.y = element_text(size = 12),
-    axis.text.x = element_text(
-      size = 12 ,
-      angle = 40,
-      hjust = 1
-    ),
-    axis.text.y = element_text(size = 12),
-    legend.position = "top"
-  ) 
-```
-
-```{r eve3, fig.cap="Problèmes rencontrés dans les intervention où le Laser peut être utilisé"}
-ttlaser %>%
-  drop_na(cause.immediate.principale) %>%
-  ggplot() +
-  aes(x = fct_infreq(cause.immediate.principale), fill = laser) +
-  geom_bar(stat = "count") +
-  labs(title = "Problème rencontré",
-       subtitle = "intervention avec possible laser",
-       y = "n") +
-  theme_light() +
-  scale_fill_material() +
-  theme(
-    plot.title = element_text(size = 18, face = "bold"),
-    plot.subtitle = element_text(size = 12),
-    axis.title.x = element_blank(),
-    legend.title = element_blank(),
-    axis.title.y = element_text(size = 12),
-    axis.text.x = element_text(
-      size = 12 ,
-      angle = 40,
-      hjust = 1
-    ),
-    axis.text.y = element_text(size = 12),
-    legend.position = "top"
-  ) 
-  
-```
 
 ### CIM 10
 
 ```{r cim}
-zz <- table(tt$libelle.cim10)
-zz <- zz[-11]
-zz <- sort(zz, decreasing = TRUE)
-kable(zz,
-      col.names = c("", "n"),
-      caption = "Libellés CIM10 les plus fréquents" ,
-      label = "cimfq")
 #
 cim10 <- tt$libelle.cim10
 cim10[cim10 == "autre"] <- NA
@@ -261,7 +212,7 @@ zz %>%
   ggplot() +
   aes(x = fct_infreq(cim10), fill = laser) +
   geom_bar(stat = "count") +
-  labs(title = "Diagnostic (CIM 10) les plus fréquents",
+  labs(title = "Diagnostic (CIM 10)",
        y = "n") +
   theme_light() +
   scale_fill_material() +
@@ -294,25 +245,24 @@ kable(zz,
 #
 ```
 
-### Autres données
+## Autres données
 
 ```{r tab1av}
-navt <- c(3,4,13,18,21,23,24:26, 46)
-tabcph(tt[,navt], laser, titre = "Facteurs liés à l'intervention", nomv = names(tt)[navt])
+navt <- c(3,4,13,18:26, 46)
+tabcph(tt[,navt], laser, titre = "Facteurs liés à l'intervention", nomv = names(tt)[navt], export = exp)
 
 ```
 
-Il y a plus d'incidents avec le Laser en non urgent comparé aux autres méthodes mais est-ce que le Laser n'est utilisé préférentiellement dans des indications programmées ? Mếme réflexion pour les autres items.
-
+Il y a plus d'incidents avec le Laser en non urgent comparé aux autres méthodes mais est-ce que le Laser n'est utilisé préférentiellement dans des indications programmées ? Même réflexion pour les autres items.
 
 ## Causes suspectées
 
 ```{r tab1pd}
 npend <- c(27:35,46)
-tabcph(tt[,npend], laser, titre = "Causes identifiées", nomv = names(tt)[npend])
+tabcph(tt[,npend], laser, titre = "Causes identifiées", nomv = names(tt)[npend], export = exp)
 ```
 
-Il n'y a pas de différence sur les causes retenues à l'incident (moins de ^pb liés au personnel avec le Laser ?) 
+Les causes liées à la tâche & à l'organisatrion sont plus souvent notées pour le laser.
 
 ```{r graphcause}
 bardeuxph(tt$cause.immediate.principale, tt$laser, "Cause immédiate principale")
@@ -324,7 +274,7 @@ bardeuxph(tt$cause.immediate.principale, tt$laser, "Cause immédiate principale"
 
 ```{r tab1ap}
 napres <- c(37:46)
-tabcph(tt[napres], nomv = names(tt)[napres], laser, titre = "Conséquences de l'incident")
+tabcph(tt[napres], nomv = names(tt)[napres], laser, titre = "Conséquences de l'incident", export = exp)
 
 ```       
 
@@ -342,12 +292,12 @@ Les problèmes liés au matériel semblent plus fréquents avec le Laser; Tout d
 
 ```{r mattab1}
 nmat <- c(6,47,12,11,13,21,24,4,46,48)
-tabcph(tt[,nmat], materiel, nomv = names(tt)[nmat], titre = "Causes des incidents liés au matériel")
+tabcph(tt[,nmat], materiel, nomv = names(tt)[nmat], titre = "Causes des incidents liés au matériel", export = exp)
 ```
-Les incidents liés au matériel & stérilisation semblent plus fréquents chez les patients  plus jeunes, moins sévères (score ASA), pour les actes thérapeutiques, sur des interventions programmées, où la situation à risque n' pas été identifiée & avec un Laser. En clair pour des interventions complexes, avec du gros matériel, réalisées de jour sans urgence.
+Les incidents liés au matériel & stérilisation semblent plus fréquents chez les patients  plus jeunes, moins sévères (score ASA) & où la situation à risque n' pas été retenue & avec un Laser. En clair pour des interventions complexes, avec du gros matériel, réalisées de jour sans urgence.
 
 ```{r mat0}
-clas <- chisq.test(ttlaser$cause.immediate.principale,ttlaser$laser)
+clas <- chisq.test(tt$cause.immediate.principale,tt$laser)
 pp <- beaup(clas$p.value)
 
 zz <- table(tt$cause.immediate.principale <- fct_rev(fct_relevel(tt$cause.immediate.principale, "MATERIEL ET STERILISATION" )),tt$laser)
@@ -383,20 +333,28 @@ Les problèmes liés au matériel semblent fréquents lors des interventions ave
 
 
 ```{r mat1}
-ttlaser$materiel <- as.factor(ifelse(ttlaser$cause.immediate.principale == "MATERIEL ET STERILISATION","matériel", "autre cause" ))
-cc(ttlaser$materiel,ttlaser$laser)
+tt$materiel <- as.factor(ifelse(tt$cause.immediate.principale == "MATERIEL ET STERILISATION","matériel", "autre cause" ))
+cc(tt$materiel,tt$laser)
 ```
 Incident lié au matériel selon l'usage du Laser ou non. 
 
 ## Analyse multivariée
 
 ```{r matmulti}
-aa <- c("age" , "asa" , "but.acte.medical" , "periode.vulnerable" ,"avant.complexite.clinique" ,"pac.programmee" , "situation.a.risque" , "laser")
-glmph("tt","materiel",aa,"Circonstances possibles d'incident avec le matériel",lab = "mat2")
+gg <- tt[,c(6,12,24,4,46,48)]
+ggm <- imputeFAMD(gg,0)
+ggm <- ggm$completeObs
+ll <- glm(
+  materiel ~ age + asa 	+
+    pac.programmee + situation.a.risque + laser,
+  data = ggm,
+  family = "binomial"
+)
+forest_model(ll)
 
 ```
 
-En analyse multivariée par régression logistique, Les problèmes liés au matériel semblent n'^tre liées qu'à la situation à risque & à l'usage du Laser.
+En analyse multivariée par régression logistique, Les cas d'incidents liés au matériel & à la stérilisation se produisent plutôt chez des patients plus jeunes, moins sévères, en prise en charge programmée & en dehors d'une situation à risque mais surtout quand un Laser est utilisé. pour simplifier, en urgence ou sur des patients sévères  on utilise du matériel plus simple donc moins de problèmes.
 
 
 
@@ -404,7 +362,6 @@ En analyse multivariée par régression logistique, Les problèmes liés au mat�
 
 **Petit paragraphe à ajouter en fin de “matériel & méthode”**
 
-*Pas fini !!!*
 
-Les données discrètes ont été décrites par leur fréquence exprimée en pourcentage avec son intervalle de confiance à 95 % et ont été comparées par le test exact de Fisher vu la faible effectif. Les intervalles de confiance n’ont été réalisés qu’après transformation angulaire. Les données numériques ont été décrites par leur moyenne (avec son intervalle de confiance à 95 % calculé par bootstrap) et l’écart-type. Les données continues ont été comparées par le test de Student après vérification de l’égalité des variances. L’analyse factorielle a été réalisée en analyse des correspondances multiples après imputation des données manquantes, possible ici en raison du faible nombre de celles-ci.
+Les données discrètes ont été décrites par leur fréquence exprimée en pourcentage avec son intervalle de confiance à 95 % et ont été comparées par le test exact de Fisher vu la faible effectif. Les intervalles de confiance n’ont été réalisés qu’après transformation angulaire. Les données numériques ont été décrites par leur moyenne (avec son intervalle de confiance à 95 % calculé par bootstrap) et l’écart-type. Les données continues ont été comparées par le test de Student après vérification de l’égalité des variances. Les analyses multivariées ont été réalisées par régression logistique. tous les items ayant un p < 20 % ont ét utilisés. Une recherche du meilleur modèle a ensuite été réanisée par stet by step descendant.
 Les statistiques ont été réalisées grâce au logiciel R[@rstat] avec en particulier les packages du Tidyverse[@tidy] & factoMineR[@facto].

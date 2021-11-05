@@ -1,0 +1,656 @@
+\documentclass[a4paper,fontsize=10pt,french]{scrartcl}
+%
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{fontspec}
+\usepackage{microtype}
+\usepackage[output-decimal-marker={,}]{siunitx}
+\usepackage[french]{varioref}
+\usepackage{tikz}
+\usepackage{textcomp}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{babel}
+\usepackage{hyperref}
+%
+\hypersetup{%
+colorlinks=true,
+pdftitle={},
+pdfauthor={Philippe MICHEL},
+pdfkeywords={},
+unicode
+}
+%
+  %
+\setmainfont[Ligatures=TeX,
+BoldFont = MinionPro-Bold,
+ItalicFont = MinionPro-It]
+   {MinionPro-Regular}
+   \setsansfont[Ligatures=TeX]
+{MyriadPro-Regular}
+
+\title{Laser en urologie}
+\usepackage{etoolbox}
+\subtitle{Évenements indésirables}
+\author{Philippe MICHEL}
+\date{05 novembre 2021 - V3szz}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+
+\section{Description des données}\label{description-des-donnuxe9es}
+
+
+Pour avoir un groupe plus homogène \& des comparaisons qui ont un sens
+on ne garde que les interventions où le laser  est parfois  utilisé à
+savoir :
+
+\begin{itemize}
+\item
+  Calcul urinaire
+\item
+  Hyperplasie de la prostate
+\item
+  Tumeur bénigne de la prostate
+\item
+  Dysplasie de la prostate
+\item
+  Affection de la prostate
+\item
+  Colique néphrétique
+\item
+  Incontinence urinaire
+\item
+  Dysurie
+\item
+  Congestion et hémorragie prostatiques
+\item
+  Autres calculs des voies urinaires inférieures
+\end{itemize}
+
+La base de données comprend alors 363 cas pour 48 dont 149 cas de laser.
+le nombre de variables devient donc important \& il est hors de question
+de faire des tests au hasard sur toutes les variables.
+
+Les données des variables \textsf{Evénement'} \&  \textsf{CCAM} ont été nettoyées \&
+regroupées. Seuls les dix intitulés les plus fréquents seront pris en
+compte.
+
+\subsection{Données démographiques}\label{donnuxe9es-duxe9mographiques}
+
+\begin{table}
+
+\caption{\label{tab:tabcomp}Données démographiques}
+\centering
+\begin{tabular}[t]{l|l|l|l}
+ \toprule
+  & autre & laser & p\\
+\midrule
+\textbf{Sexe} &  &  & p = 0.055\\
+ 
+féminin & 80/264 (30.3\,\%) & 20/99 (20.2\,\%) & \\
+ 
+masculin & 184/264 (69.7\,\%) & 79/99 (79.8\,\%) & \\
+\midrule
+\textbf{Âge} & 64.8 ± 14.8 & 64.7 ± 13.9 & p = 0.956\\
+\midrule
+\textbf{Taille} & 169 ± 14.4 & 172 ± 6.29 & p = 0.057\\
+\midrule
+\textbf{Poids} & 75.5 ± 13.3 & 78.5 ± 13.8 & p = 0.056\\
+\midrule
+\textbf{IMC} &  &  & p = 0.721\\
+ 
+Underweight & 3/261 (1.1\,\%) & 0/99 (0\,\%) & \\
+ 
+Normal weight & 102/261 (39.1\,\%) & 40/99 (40.4\,\%) & \\
+ 
+Overweight & 123/261 (47.1\,\%) & 45/99 (45.5\,\%) & \\
+ 
+Obese & 33/261 (12.6\,\%) & 14/99 (14.1\,\%) & \\
+\midrule
+\textbf{Grosssesse} &  &  & p = 0.566\\
+ 
+non & 75/80 (93.8\,\%) & 20/20 (100\,\%) & \\
+ 
+oui & 5/80 (6.2\,\%) & 0/20 (0\,\%) & \\
+\midrule
+\textbf{Score ASA} &  &  & p = 0.737\\
+ 
+1 & 59/117 (50.4\,\%) & 21/47 (44.7\,\%) & \\
+ 
+2 & 33/117 (28.2\,\%) & 16/47 (34\,\%) & \\
+ 
+3 & 25/117 (21.4\,\%) & 10/47 (21.3\,\%) & \\
+\midrule
+\textbf{Complexité clinique} &  &  & p = 0.008\\
+ 
+Non complexe & 174/247 (70.4\,\%) & 37/67 (55.2\,\%) & \\
+ 
+Plutôt non complexe & 47/247 (19\,\%) & 13/67 (19.4\,\%) & \\
+ 
+Plutôt complexe & 26/247 (10.5\,\%) & 17/67 (25.4\,\%) & \\
+ 
+Très complexe & 0/247 (0\,\%) & 0/67 (0\,\%) & \\
+ \bottomrule
+\end{tabular}
+\end{table}
+
+Les patients ``Laser'' ont une \emph{complexité clinique} plus
+importante. Pas d'autre différence notable.
+
+\begin{figure}
+  \includegraphics[width = \linewidth]{laser_uro_files/figure-latex/pyr-1} 
+  %\includegraphics[width=\linewidth]{laser_uro_files/figure-latex/pyr-1}
+  %\caption{Pyramide des âges}
+  %\label{figpyr}
+\end{figure}
+
+\subsection{Diagnostic}\label{diagnostic}
+
+\subsubsection{CIM 10}\label{cim-10}
+
+\includegraphics[width = \linewidth]{laser_uro_files/figure-latex/cim-1}
+
+\subsubsection{CCAM}\label{ccam}
+
+\begin{table}
+
+\caption{\label{tab:pyr}Libellés CCAM les plus fréquents}
+\centering
+\begin{tabularx}{\textwidth}[t]{X|r}
+  \toprule
+ & n\\
+autre & 80\\
+Résection d'une hypertrophie de la prostate, par endoscopie & 49\\
+Résection d'une hypertrophie de la prostate, par urétrocystoscopie & 39\\ 
+Fragmentation intrarénale de calcul avec ondes de choc ou laser [Lithotritie intrarénale], par urétéronéphroscopie & 22\\
+Soutènement vésical par bandelette synthétique infra-urétrale, par voie transvaginale et par voie transobturatrice & 22\\
+Ablation et/ou fragmentation de calcul de l'uretère lombal, par urétéroscopie rétrograde & 21\\
+Pose d'une endoprothèse urétérale, par endoscopie rétrograde & 18\\
+Ablation et/ou fragmentation de calcul de l'uretère pelvien, par urétéroscopie rétrograde & 17\\
+Fragmentation intrarénale de calcul caliciel inférieur avec ondes de choc ou laser [Lithotritie intrarénale], par urétéronéphroscopie & 16\\
+Lithotritie extracorporelle du rein, avec guidage radiologique & 16\\
+Biopsie de la prostate, par voie transrectale avec guidage échographique & 10\\
+  \bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Autres données}\label{autres-donnuxe9es}
+
+
+
+\centering
+\begin{longtable}[t]{l|l|l|l}
+  \caption{\label{tab:tabcomp}Facteurs liés à l'intervention}\\
+ \toprule
+  & autre & laser & p\\
+  \midrule
+  \endfirsthead
+ \toprule
+  & autre & laser & p\\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+    \bottomrule
+  \endlastfoot
+\textbf{cause.immediate.principale} &  &  & p = 0.016\\
+CLINIQUE & 28/264 (10.6\,\%) & 7/99 (7.1\,\%) & \\
+GESTE TECHNIQUE & 40/264 (15.2\,\%) & 14/99 (14.1\,\%) & \\
+INFORMATION & 92/264 (34.8\,\%) & 25/99 (25.3\,\%) & \\
+MATERIEL ET STERILISATION & 55/264 (20.8\,\%) & 38/99 (38.4\,\%) & \\
+MEDICAMENT & 49/264 (18.6\,\%) & 15/99 (15.2\,\%) & \\
+\midrule
+\textbf{situation.a.risque} &  &  & p = 0.998\\
+non & 127/262 (48.5\,\%) & 48/99 (48.5\,\%) & \\
+oui & 135/262 (51.5\,\%) & 51/99 (51.5\,\%) & \\
+\midrule
+\textbf{but.acte.medical} &  &  & p = 0.098\\
+Dépistage & 1/264 (0.4\,\%) & 0/99 (0\,\%) & \\
+Diagnostic & 11/264 (4.2\,\%) & 0/99 (0\,\%) & \\
+Thérapeutique & 252/264 (95.5\,\%) & 99/99 (100\,\%) & \\
+\midrule
+\textbf{produit} &  &  & p = 0.141\\
+Dispositif médical & 16/100 (16\,\%) & 10/30 (33.3\,\%) & \\
+Dispositif médical / Autre produit de santé & 6/100 (6\,\%) & 2/30 (6.7\,\%) & \\
+ 
+Dispositif médical implantable & 27/100 (27\,\%) & 4/30 (13.3\,\%) & \\
+ 
+Médicament & 51/100 (51\,\%) & 14/30 (46.7\,\%) & \\
+ 
+Médicament / Dispositif médical & 0/100 (0\,\%) & 0/30 (0\,\%) & \\
+ 
+Médicament / Dispositif médical implantable & 0/100 (0\,\%) & 0/30 (0\,\%) & \\
+\midrule
+\textbf{rayonnements.ionisants} &  &  & p = 0.167\\
+ 
+ne sais pas & 6/264 (2.3\,\%) & 0/99 (0\,\%) & \\
+ 
+non & 250/264 (94.7\,\%) & 98/99 (99\,\%) & \\
+ 
+oui & 8/264 (3\,\%) & 1/99 (1\,\%) & \\
+\midrule
+\textbf{localisation.survenue} &  &  & p = 0.314\\
+ 
+Autre, préciser & 16/264 (6.1\,\%) & 9/99 (9.1\,\%) & \\
+ 
+Bloc opératoire & 145/264 (54.9\,\%) & 58/99 (58.6\,\%) & \\
+ 
+ne sais pas & 1/264 (0.4\,\%) & 1/99 (1\,\%) & \\
+ 
+Salle de cathétérisme, d'endoscopie, d'exploration fonctionnelle\dots & 0/264 (0\,\%) & 0/99 (0\,\%) & \\
+ 
+Salle de surveillance post-interventionnelle & 9/264 (3.4\,\%) & 0/99 (0\,\%) & \\
+ 
+Service de radiologie & 1/264 (0.4\,\%) & 0/99 (0\,\%) & \\
+ 
+Service des urgences & 6/264 (2.3\,\%) & 0/99 (0\,\%) & \\
+ 
+Unité de consultation, salle de pansement & 7/264 (2.7\,\%) & 1/99 (1\,\%) & \\
+ 
+Unité de réanimation, de soins intensifs & 1/264 (0.4\,\%) & 0/99 (0\,\%) & \\
+ 
+Unité Hospitalisation & 78/264 (29.5\,\%) & 30/99 (30.3\,\%) & \\
+\midrule
+\textbf{periode.vulnerable} &  &  & p = 0.012\\
+ 
+non & 210/264 (79.5\,\%) & 89/98 (90.8\,\%) & \\
+ 
+oui & 54/264 (20.5\,\%) & 9/98 (9.2\,\%) & \\
+\midrule
+\textbf{periode} &  &  & p = 0.803\\
+ 
+Autre & 13/54 (24.1\,\%) & 4/9 (44.4\,\%) & \\
+ 
+Heure de changement d'équipe & 7/54 (13\,\%) & 0/9 (0\,\%) & \\
+ 
+Heure de changement d'équipe / Autre & 3/54 (5.6\,\%) & 0/9 (0\,\%) & \\
+ 
+Jour férié & 1/54 (1.9\,\%) & 0/9 (0\,\%) & \\
+ 
+Jour férié / Autre & 1/54 (1.9\,\%) & 0/9 (0\,\%) & \\
+ 
+Jour férié / Week-end / Autre & 0/54 (0\,\%) & 0/9 (0\,\%) & \\
+ 
+Nuit & 10/54 (18.5\,\%) & 1/9 (11.1\,\%) & \\
+ 
+Nuit / Autre & 1/54 (1.9\,\%) & 1/9 (11.1\,\%) & \\
+ 
+Nuit / Heure de changement d'équipe & 1/54 (1.9\,\%) & 0/9 (0\,\%) & \\
+ 
+Nuit / Heure de changement d'équipe / Autre & 0/54 (0\,\%) & 0/9 (0\,\%) & \\
+ 
+Nuit / Week-end & 1/54 (1.9\,\%) & 0/9 (0\,\%) & \\
+ 
+Nuit / Week-end / Autre & 1/54 (1.9\,\%) & 0/9 (0\,\%) & \\
+ 
+Week-end & 13/54 (24.1\,\%) & 3/9 (33.3\,\%) & \\
+ 
+Week-end / Autre & 2/54 (3.7\,\%) & 0/9 (0\,\%) & \\
+\midrule
+\textbf{degre.urgence.pac} &  &  & p = 0.106\\
+ 
+Non urgent & 174/261 (66.7\,\%) & 78/98 (79.6\,\%) & \\
+ 
+Urgence différable de quelques heures & 32/261 (12.3\,\%) & 9/98 (9.2\,\%) & \\
+ 
+Urgence différable de quelques jours & 22/261 (8.4\,\%) & 5/98 (5.1\,\%) & \\
+ 
+Urgence immédiate & 33/261 (12.6\,\%) & 6/98 (6.1\,\%) & \\
+\midrule
+\textbf{pac.programmee} &  &  & p = 0.107\\
+ 
+non & 51/264 (19.3\,\%) & 12/99 (12.1\,\%) & \\
+ 
+oui & 213/264 (80.7\,\%) & 87/99 (87.9\,\%) & \\
+\midrule
+\textbf{infection.nosocomiale} &  &  & p = 0.646\\
+ 
+non & 250/261 (95.8\,\%) & 93/99 (93.9\,\%) & \\
+ 
+oui & 11/261 (4.2\,\%) & 6/99 (6.1\,\%) & \\
+\midrule
+\textbf{niveau.gravite} &  &  & p = 0.331\\
+ 
+1 - mineur & 189/264 (71.6\,\%) & 63/99 (63.6\,\%) & \\
+ 
+2 - significatif & 55/264 (20.8\,\%) & 27/99 (27.3\,\%) & \\
+ 
+3 - majeur & 12/264 (4.5\,\%) & 4/99 (4\,\%) & \\
+ 
+4 - grave à  critique & 6/264 (2.3\,\%) & 5/99 (5.1\,\%) & \\
+ 
+5 - catastrophique & 2/264 (0.8\,\%) & 0/99 (0\,\%) & \\
+\end{longtable}
+
+
+Il y a plus d'incidents avec le Laser en non urgent comparé aux autres
+méthodes mais est-ce que le Laser n'est utilisé préférentiellement dans
+des indications programmées ? Même réflexion pour les autres items.
+
+\subsection{Causes suspectées}\label{causes-suspectuxe9es}
+
+\begin{table}
+
+\caption{\label{tab:tabcomp}Causes identifiées}
+\centering
+\begin{tabularx}{\linewidth}[t]{X|l|l|l}
+  \toprule
+  & autre & laser & p\\
+\midrule
+\textbf{identification.causes.immediates} &  &  & p = 0.671\\
+ 
+non & 28/264 (10.6\,\%) & 9/99 (9.1\,\%) & \\
+ 
+oui & 236/264 (89.4\,\%) & 90/99 (90.9\,\%) & \\
+\midrule
+\textbf{causes.liees.patient} &  &  & p = 0.362\\
+ 
+ne sais pas & 4/264 (1.5\,\%) & 0/99 (0\,\%) & \\
+ 
+non & 186/264 (70.5\,\%) & 67/99 (67.7\,\%) & \\
+ 
+oui & 74/264 (28\,\%) & 32/99 (32.3\,\%) & \\
+\midrule
+\textbf{causes.liees.taches} &  &  & p = 0.026\\
+ 
+ne sais pas & 12/264 (4.5\,\%) & 2/99 (2\,\%) & \\
+ 
+non & 133/264 (50.4\,\%) & 37/99 (37.4\,\%) & \\
+ 
+oui & 119/264 (45.1\,\%) & 60/99 (60.6\,\%) & \\
+\midrule
+\textbf{causes.liees.soignant} &  &  & p = 0.749\\
+ 
+ne sais pas & 15/264 (5.7\,\%) & 4/99 (4\,\%) & \\
+ 
+non & 143/264 (54.2\,\%) & 57/99 (57.6\,\%) & \\
+ 
+oui & 106/264 (40.2\,\%) & 38/99 (38.4\,\%) & \\
+\midrule
+\textbf{cause.individu} &  &  & p = 0.533\\
+ 
+Facteurs de stress physique ou psychologique & 12/67 (17.9\,\%) & 3/25 (12\,\%) & \\
+ 
+Qualifications, compétences & 49/67 (73.1\,\%) & 21/25 (84\,\%) & \\
+ 
+Qualifications, compétences / Facteurs de stress physique ou psychologique & 6/67 (9\,\%) & 1/25 (4\,\%) & \\
+\midrule
+\textbf{causes.liees.equipe} &  &  & p = 0.873\\
+ 
+ne sais pas & 4/264 (1.5\,\%) & 2/99 (2\,\%) & \\
+ 
+non & 116/264 (43.9\,\%) & 41/99 (41.4\,\%) & \\
+ 
+oui & 144/264 (54.5\,\%) & 56/99 (56.6\,\%) & \\
+\midrule
+\textbf{causes.liees.environnement.travail} &  &  & p = 0.89\\
+ 
+ne sais pas & 8/264 (3\,\%) & 4/99 (4\,\%) & \\
+ 
+non & 184/264 (69.7\,\%) & 68/99 (68.7\,\%) & \\
+ 
+oui & 72/264 (27.3\,\%) & 27/99 (27.3\,\%) & \\
+\midrule
+\textbf{causes.liees.organisation} &  &  & p = 0.02\\
+ 
+ne sais pas & 5/264 (1.9\,\%) & 2/99 (2\,\%) & \\
+ 
+non & 194/264 (73.5\,\%) & 58/99 (58.6\,\%) & \\
+ 
+oui & 65/264 (24.6\,\%) & 39/99 (39.4\,\%) & \\
+\midrule
+\textbf{causes.liees.institutionnel} &  &  & p = 0.482\\
+ 
+ne sais pas & 5/264 (1.9\,\%) & 3/99 (3\,\%) & \\
+ 
+non & 244/264 (92.4\,\%) & 93/99 (93.9\,\%) & \\
+ 
+oui & 15/264 (5.7\,\%) & 3/99 (3\,\%) & \\
+  \bottomrule
+\end{tabularx}
+\end{table}
+
+Les causes liées à la tâche \& à l'organisatrion sont plus souvent
+notées pour le laser.
+
+\includegraphics[width=1\linewidth]{laser_uro_files/figure-latex/graphcause-1}
+
+La seule cause d'incident où une différence est retrouvée est le
+matériel.
+
+\subsection{Après l'évènemement}\label{apruxe8s-luxe9vuxe8nemement}
+
+\begin{table}
+
+\caption{\label{tab:tabcomp}Conséquences de l'incident}
+\centering
+\begin{tabular}[t]{l|l|l|l}
+  \toprule
+  & autre & laser & p\\
+\midrule
+\textbf{identifile.barrieres.efficasses} &  &  & p = 0.478\\
+ 
+non & 83/264 (31.4\,\%) & 35/99 (35.4\,\%) & \\
+ 
+oui & 181/264 (68.6\,\%) & 64/99 (64.6\,\%) & \\
+\midrule
+\textbf{qualifieriez.vous} &  &  & p = 0.158\\
+ 
+évitable & 231/264 (87.5\,\%) & 77/99 (77.8\,\%) & \\
+ 
+probablement évitable & 22/264 (8.3\,\%) & 16/99 (16.2\,\%) & \\
+ 
+probablement inévitable & 5/264 (1.9\,\%) & 3/99 (3\,\%) & \\
+ 
+inévitable & 2/264 (0.8\,\%) & 2/99 (2\,\%) & \\
+ 
+ne sais pas & 4/264 (1.5\,\%) & 1/99 (1\,\%) & \\
+\midrule
+\textbf{existe.recommandation} &  &  & p = 0.451\\
+ 
+ne sais pas & 73/264 (27.7\,\%) & 28/99 (28.3\,\%) & \\
+ 
+non & 75/264 (28.4\,\%) & 34/99 (34.3\,\%) & \\
+ 
+oui & 116/264 (43.9\,\%) & 37/99 (37.4\,\%) & \\
+\midrule
+\textbf{au.sein.equipe} &  &  & p = 0.499\\
+ 
+ne sais pas & 2/264 (0.8\,\%) & 0/99 (0\,\%) & \\
+ 
+non & 13/264 (4.9\,\%) & 3/99 (3\,\%) & \\
+ 
+oui & 249/264 (94.3\,\%) & 96/99 (97\,\%) & \\
+\midrule
+\textbf{rmm} &  &  & p = 0.279\\
+ 
+ne sais pas & 15/264 (5.7\,\%) & 2/99 (2\,\%) & \\
+ 
+non & 200/264 (75.8\,\%) & 75/99 (75.8\,\%) & \\
+ 
+oui & 49/264 (18.6\,\%) & 22/99 (22.2\,\%) & \\
+\midrule
+\textbf{sein.etablissement} &  &  & p = 0.668\\
+ 
+ne sais pas & 12/264 (4.5\,\%) & 3/99 (3\,\%) & \\
+ 
+non & 117/264 (44.3\,\%) & 41/99 (41.4\,\%) & \\
+ 
+oui & 135/264 (51.1\,\%) & 55/99 (55.6\,\%) & \\
+\midrule
+\textbf{al.ars} &  &  & p = 0.283\\
+ 
+ne sais pas & 16/264 (6.1\,\%) & 3/99 (3\,\%) & \\
+ 
+non & 245/264 (92.8\,\%) & 96/99 (97\,\%) & \\
+ 
+oui & 3/264 (1.1\,\%) & 0/99 (0\,\%) & \\
+\midrule
+\textbf{autres.institutions} &  &  & p = 0.443\\
+ne sais pas & 17/264 (6.4\,\%) & 3/99 (3\,\%) & \\
+non & 240/264 (90.9\,\%) & 93/99 (93.9\,\%) & \\
+oui & 7/264 (2.7\,\%) & 3/99 (3\,\%) & \\
+\midrule
+\textbf{patient.informe} &  &  & p = 0.262\\
+ne sais pas & 7/264 (2.7\,\%) & 0/99 (0\,\%) & \\
+non & 78/264 (29.5\,\%) & 30/99 (30.3\,\%) & \\
+oui & 179/264 (67.8\,\%) & 69/99 (69.7\,\%) & \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+Les incidents survenus avec le Laser semblent moins ``évitables''.
+
+\includegraphics[width=1\linewidth]{laser_uro_files/figure-latex/graphap-1}
+
+\section{Matériel \& Laser}\label{matuxe9riel-laser}
+
+Les problèmes liés au matériel semblent plus fréquents avec le Laser;
+Tout d'abord regardons si ces problèmes liés avec le matériel peuvent
+avoir d'autres causes.
+
+\hypertarget{tableau-comparatif}{%
+\subsection{Tableau comparatif}\label{tableau-comparatif}}
+
+\begin{table}
+
+\caption{\label{tab:tabcomp}Causes des incidents liés au matériel}
+\centering
+\begin{tabular}[t]{l|l|l|l}
+  \toprule
+  & Autre cause & Matériel et stérilisation & p\\
+\midrule
+\textbf{age} & 66.6 ± 14 & 59.4 ± 14.8 & p < 0,001\\
+\midrule
+\textbf{bmi} &  &  & p = 0.763\\
+ 
+Underweight & 3/269 (1.1\,\%) & 0/91 (0\,\%) & \\
+ 
+Normal weight & 105/269 (39\,\%) & 37/91 (40.7\,\%) & \\
+ 
+Overweight & 125/269 (46.5\,\%) & 43/91 (47.3\,\%) & \\
+ 
+Obese & 36/269 (13.4\,\%) & 11/91 (12.1\,\%) & \\
+\midrule
+\textbf{asa} &  &  & p = 0.003\\
+ 
+1 & 51/121 (42.1\,\%) & 29/43 (67.4\,\%) & \\
+ 
+2 & 37/121 (30.6\,\%) & 12/43 (27.9\,\%) & \\
+ 
+3 & 33/121 (27.3\,\%) & 2/43 (4.7\,\%) & \\
+\midrule
+\textbf{avant.complexite.clinique} &  &  & p = 0.921\\
+ 
+Non complexe & 159/238 (66.8\,\%) & 52/76 (68.4\,\%) & \\
+ 
+Plutôt non complexe & 45/238 (18.9\,\%) & 15/76 (19.7\,\%) & \\
+ 
+Plutôt complexe & 34/238 (14.3\,\%) & 9/76 (11.8\,\%) & \\
+ 
+Très complexe & 0/238 (0\,\%) & 0/76 (0\,\%) & \\
+\midrule
+\textbf{but.acte.medical} &  &  & p = 0.37\\
+ 
+Dépistage & 1/270 (0.4\,\%) & 0/93 (0\,\%) & \\
+ 
+Diagnostic & 10/270 (3.7\,\%) & 1/93 (1.1\,\%) & \\
+ 
+Thérapeutique & 259/270 (95.9\,\%) & 92/93 (98.9\,\%) & \\
+\midrule
+\textbf{periode.vulnerable} &  &  & p = 0.312\\
+ 
+non & 219/269 (81.4\,\%) & 80/93 (86\,\%) & \\
+ 
+oui & 50/269 (18.6\,\%) & 13/93 (14\,\%) & \\
+\midrule
+\textbf{pac.programmee} &  &  & p = 0.103\\
+ 
+non & 52/270 (19.3\,\%) & 11/93 (11.8\,\%) & \\
+ 
+oui & 218/270 (80.7\,\%) & 82/93 (88.2\,\%) & \\
+\midrule
+\textbf{situation.a.risque} &  &  & p < 0,001\\
+non & 105/270 (38.9\,\%) & 70/91 (76.9\,\%) & \\
+oui & 165/270 (61.1\,\%) & 21/91 (23.1\,\%) & \\
+\midrule
+\textbf{laser} &  &  & p < 0,001\\
+autre & 209/270 (77.4\,\%) & 55/93 (59.1\,\%) & \\
+laser & 61/270 (22.6\,\%) & 38/93 (40.9\,\% ) & \\
+ \bottomrule
+\end{tabular}
+\end{table}
+
+Les incidents liés au matériel \& stérilisation semblent plus fréquents
+chez les patients plus jeunes, moins sévères (score ASA) \& où la
+situation à risque n' pas été retenue \& avec un Laser. En clair pour
+des interventions complexes, avec du gros matériel, réalisées de jour
+sans urgence.
+
+\includegraphics[width=1\linewidth]{laser_uro_files/figure-latex/mat0-1}
+Les problèmes rencontrées pendant les interventions avec Laser semblent
+différentes des autres interventions (p = p = 0.016).
+
+Les problèmes liés au matériel semblent fréquents lors des interventions
+avec Laser. On se concentre sur les types d'interventions où le Laser
+est parfois utilisé.
+
+\includegraphics[width=1\linewidth]{laser_uro_files/figure-latex/mat1-1}
+
+\begin{verbatim}
+## 
+##              tt$laser
+## tt$materiel   autre laser Total
+##   autre cause   209    61   270
+##   matériel       55    38    93
+##   Total         264    99   363
+## 
+## OR =  2.37 
+## 95% CI =  1.43, 3.91  
+## Chi-squared = 11.64, 1 d.f., P value = 0.001
+## Fisher's exact test (2-sided) P value = 0.001
+\end{verbatim}
+
+Incident lié au matériel selon l'usage du Laser ou non.
+
+\subsection{Analyse multivariée}\label{analyse-multivariuxe9e}
+
+\includegraphics[width=1\linewidth]{laser_uro_files/figure-latex/matmulti-1}
+
+En analyse multivariée par régression logistique, Les cas d'incidents
+liés au matériel \& à la stérilisation se produisent plutôt chez des
+patients plus jeunes, moins sévères, en prise en charge programmée \& en
+dehors d'une situation à risque mais surtout quand un Laser est utilisé.
+pour simplifier, en urgence ou sur des patients sévères on utilise du
+matériel plus simple donc moins de problèmes.
+
+\section{Technique}\label{technique}
+
+\textbf{Petit paragraphe à ajouter en fin de ``matériel \& méthode''}
+
+Les données discrètes ont été décrites par leur fréquence exprimée en
+pourcentage avec son intervalle de confiance à 95 \% et ont été
+comparées par le test exact de Fisher vu la faible effectif. Les
+intervalles de confiance n'ont été réalisés qu'après transformation
+angulaire. Les données numériques ont été décrites par leur moyenne
+(avec son intervalle de confiance à 95 \% calculé par bootstrap) et
+l'écart-type. Les données continues ont été comparées par le test de
+Student après vérification de l'égalité des variances. Les analyses
+multivariées ont été réalisées par régression logistique. tous les items
+ayant un p \textless{} 20 \% ont ét utilisés. Une recherche du meilleur
+modèle a ensuite été réanisée par stet by step descendant. Les
+statistiques ont été réalisées grâce au logiciel R\cite{rstat} avec
+en particulier les packages du Tidyverse\cite{tidy} \&
+factoMineR\cite{facto}.
+
+\bibliographystyle{plain-fr}
+\bibliography{stat}
+\end{document}
